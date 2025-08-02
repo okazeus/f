@@ -4,7 +4,7 @@
 <head>
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title> پیاری فاطی❤️</title>
+    <title> فاطی❤️</title>
     <link type="text/css" rel="stylesheet" href="./file/default.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
 
@@ -23,7 +23,9 @@
         body {
             margin: 0;
             padding: 0;
-            height: 100;
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
         }
 
         #main {
@@ -31,6 +33,17 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
+            position: relative;
+            z-index: 2;
+        }
+        #hearts-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
         }
 
         #code {
@@ -66,6 +79,7 @@
 </head>
 
 <body>
+    <canvas id="hearts-canvas"></canvas>
     <div id="main">
         <div id="error">
             اس صفحے کو دیکھنے کے لیے براہِ کرم جدید براؤزر استعمال کریں جیسے
@@ -80,14 +94,15 @@
                         <br>
                         اگر میری کسی بات، لہجے یا رویے نے آپ کے دل کو ٹھیس پہنچائی ہو تو میں دل کی گہرائیوں سے معذرت
                         خواہ ہوں
-                        یقین مانیے، ہرگز ارادہ نہ تھا کہ آپ کو دکھ دوں
+                        یقین مانیے، ہرگز ارادہ نہ تھا کہ آپ کو ناراض کروں
                         آپ کی خاموشی، آپ کی ناراضگی میرے لیے بے چینی کا سبب ہے
                         نہیں معلوم کون سی بات آپ کو بری لگی ہے لیکن
                         اگر ممکن ہو تو مجھے معاف کر دیجئے
-                        اگر آپ مجھ سے کسی اور وجہ سے بات نہیں کرنا چاہتیں
-                        تو میں آپ کے فیصلے کا احترام کرتا ہوں
+                        اس دلِ ناداں سے ایسی کیا خطا ہو گئی جو اتنی بے رخی 💔
                         <br>
-                        تمہارا پیارا سا معصوم سا رافع 🥺❤️
+                        مجھ سے ایک بار بات تو کر لیجئے
+                        <br>
+                        آپ کا پیارا سا معصوم سا رافع 🥺
                     </span>
                     <br><br>
                 </div>
@@ -95,7 +110,7 @@
 
             <div id="clock-box">
                 <div class="urdu-message">
-                    اتنے وقت سے ہم نے بات نہیں کی... کیا آپ کو ایک بار بھی میرا خیال نہیں آیا؟
+                    اتنے وقت سے ہم نے بات نہیں کی... کیا آپ کو ایک بار بھی میری یاد نہیں آئی؟
                 </div>
                 <div id="clock"></div>
             </div>
@@ -281,5 +296,82 @@
 
 
 </body>
+<script>
+    // Animated floating hearts background
+    (function () {
+        var canvas = document.getElementById('hearts-canvas');
+        var ctx = canvas.getContext('2d');
+        var W = window.innerWidth;
+        var H = window.innerHeight;
+        canvas.width = W;
+        canvas.height = H;
+
+        var hearts = [];
+        var heartColors = ['#ff4d6d', '#ffb3c6', '#c9184a', '#ff8fa3', '#b22222', '#e63946'];
+        var numHearts = 40;
+        for (var i = 0; i < numHearts; i++) {
+            hearts.push({
+                x: Math.random() * W,
+                y: H + Math.random() * H,
+                size: 16 + Math.random() * 24,
+                speed: 5 + Math.random() * 1.5,
+                color: heartColors[Math.floor(Math.random() * heartColors.length)],
+                alpha: 0.7 + Math.random() * 0.3,
+                swing: Math.random() * Math.PI * 2,
+                swingSpeed: 0.012 + Math.random() * 0.025
+            });
+        }
+
+        function drawHeart(x, y, size, color, alpha) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.scale(size / 32, size / 32);
+            ctx.beginPath();
+            // Use a parametric heart curve for a more realistic heart
+            // x = 16 * sin^3(t), y = 13*cos(t) - 5*cos(2t) - 2*cos(3t) - cos(4t)
+            let first = true;
+            for (let t = 0; t <= Math.PI * 2; t += 0.05) {
+                let hx = 16 * Math.pow(Math.sin(t), 3);
+                let hy = - (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                if (first) {
+                    ctx.moveTo(hx, hy);
+                    first = false;
+                } else {
+                    ctx.lineTo(hx, hy);
+                }
+            }
+            ctx.closePath();
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, W, H);
+            for (var i = 0; i < hearts.length; i++) {
+                var h = hearts[i];
+                h.y -= h.speed;
+                h.x += Math.sin(h.swing) * 1.2;
+                h.swing += h.swingSpeed;
+                if (h.y < -40) {
+                    h.y = H + 20;
+                    h.x = Math.random() * W;
+                }
+                drawHeart(h.x, h.y, h.size, h.color, h.alpha);
+            }
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', function () {
+            W = window.innerWidth;
+            H = window.innerHeight;
+            canvas.width = W;
+            canvas.height = H;
+        });
+    })();
+</script>
 
 </html>

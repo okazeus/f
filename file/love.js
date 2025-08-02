@@ -75,8 +75,9 @@
     Seed = function(tree, point, scale, color) {
         this.tree = tree;
 
-        var scale = scale || 1
-        var color = color || '#FF0000';
+        var scale = scale || 1;
+        // Always use black for tree hearts
+        var color = '#000000';
 
         this.heart = {
             point  : point,
@@ -147,7 +148,7 @@
             ctx.scale(scale, scale);
             ctx.beginPath();
             ctx.moveTo(0, 0);
-    	    ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+            ctx.arc(0, 0, radius, 0, 2 * Math.PI);
             ctx.closePath();
             ctx.fill();
             ctx.restore();
@@ -162,8 +163,8 @@
             ctx.translate(point.x, point.y);
             ctx.scale(scale, scale);
             ctx.moveTo(0, 0);
-    	    ctx.lineTo(15, 15);
-    	    ctx.lineTo(65, 15);
+            ctx.lineTo(15, 15);
+            ctx.lineTo(65, 15);
             ctx.stroke();
 
             ctx.moveTo(0, 0);
@@ -206,8 +207,8 @@
             ctx.translate(point.x, point.y);
             ctx.beginPath();
             ctx.moveTo(0, 0);
-    	    ctx.lineTo(len, 0);
-    	    ctx.lineTo(-len, 0);
+            ctx.lineTo(len, 0);
+            ctx.lineTo(-len, 0);
             ctx.stroke();
             ctx.restore();
 
@@ -260,7 +261,7 @@
         initBloom: function() {
             var bloom = this.opt.bloom || {};
             var cache = [],
-                num = bloom.num || 500, 
+                num = bloom.num || 1000, // Increased number of hearts
                 width = bloom.width || this.width,
                 height = bloom.height || this.height,
                 figure = this.seed.heart.figure;
@@ -287,16 +288,16 @@
 
             ctx.save();
             ctx.putImageData(image, point.x, point.y);
-        	ctx.restore();
+            ctx.restore();
         },
 
         addBranch: function(branch) {
-        	this.branchs.push(branch);
+            this.branchs.push(branch);
         },
 
         addBranchs: function(branchs){
             var s = this, b, p1, p2, p3, r, l, c;
-        	for (var i = 0; i < branchs.length; i++) {
+            for (var i = 0; i < branchs.length; i++) {
                 b = branchs[i];
                 p1 = new Point(b[0], b[1]);
                 p2 = new Point(b[2], b[3]);
@@ -310,9 +311,9 @@
 
         removeBranch: function(branch) {
             var branchs = this.branchs;
-        	for (var i = 0; i < branchs.length; i++) {
-        		if (branchs[i] === branch) {
-        			branchs.splice(i, 1);
+            for (var i = 0; i < branchs.length; i++) {
+                if (branchs[i] === branch) {
+                    branchs.splice(i, 1);
                 }
             }
         },
@@ -322,7 +323,7 @@
         },
         grow: function() {
             var branchs = this.branchs;
-    	    for (var i = 0; i < branchs.length; i++) {
+            for (var i = 0; i < branchs.length; i++) {
                 var branch = branchs[i];
                 if (branch) {
                     branch.grow();
@@ -396,7 +397,7 @@
             ctx.save();
             ctx.clearRect(point.x, point.y, width, height);
             ctx.putImageData(image, i, j);
-        	ctx.restore();
+            ctx.restore();
 
             rec.point = new Point(i, j);
             rec.speed = speed * 0.95;
@@ -456,30 +457,48 @@
             var s = this;
             var ctx = s.tree.ctx;
             ctx.save();
-        	ctx.beginPath();
-        	ctx.fillStyle = 'rgb(35, 31, 32)';
-            ctx.shadowColor = 'rgb(35, 31, 32)';
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(152, 93, 5, 1)';
+            ctx.shadowColor = 'rgba(42, 29, 32, 1)';
             ctx.shadowBlur = 2;
-        	ctx.moveTo(p.x, p.y);
-        	ctx.arc(p.x, p.y, s.radius, 0, 2 * Math.PI);
-        	ctx.closePath();
-        	ctx.fill();
-        	ctx.restore();
+            ctx.moveTo(p.x, p.y);
+            ctx.arc(p.x, p.y, s.radius, 0, 2 * Math.PI);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
         }
     }
 
-    Bloom = function(tree, point, figure, color, alpha, angle, scale, place, speed) {
-        this.tree = tree;
-        this.point = point;
-        this.color = color || 'rgb(255,' + random(0, 255) + ',' + random(0, 255) + ')';
-        this.alpha = alpha || random(0.3, 1);
-        this.angle = angle || random(0, 360);
-        this.scale = scale || 0.1;
-        this.place = place;
-        this.speed = speed;
+Bloom = function(tree, point, figure, color, alpha, angle, scale, place, speed) {
+    this.tree = tree;
+    this.point = point;
+    // Unique, non-red colors for tree hearts
+    var palette = [
+        '#1E90FF', // Dodger Blue
+        '#FFD700', // Gold
+        '#32CD32', // Lime Green
+        '#FF69B4', // Hot Pink (not red)
+        '#8A2BE2', // Blue Violet
+        '#00CED1', // Dark Turquoise
+        '#FF8C00', // Dark Orange
+        '#00FA9A', // Medium Spring Green
+        '#A52A2A', // Brown
+        '#7FFFD4', // Aquamarine
+        '#B8860B', // Dark Goldenrod
+        '#4682B4', // Steel Blue
+        '#20B2AA', // Light Sea Green
+        '#C71585', // Medium Violet Red
+        '#6A5ACD'  // Slate Blue
+    ];
+    this.color = palette[Math.floor(Math.random() * palette.length)];
+    this.alpha = alpha || random(0.3, 1);
+    this.angle = angle || random(0, 360);
+    this.scale = scale || 0.1;
+    this.place = place;
+    this.speed = speed;
 
-        this.figure = figure;
-    }
+    this.figure = figure;
+}
     Bloom.prototype = {
         setFigure: function(figure) {
             this.figure = figure;
